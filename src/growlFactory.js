@@ -15,7 +15,8 @@ angular.module("angular-growl").provider("growl", function() {
       _disableIcons = false,
       _reverseOrder = false,
       _disableCountDown = false,
-      _translateMessages = true;
+      _translateMessages = true,
+      _persistentMessages = false;
 
   /**
    * set a global timeout (time to live) after which messages will be automatically closed
@@ -38,6 +39,14 @@ angular.module("angular-growl").provider("growl", function() {
     }
   };
 
+  /**
+   * set whether should stay on screen (default:false) even if we change the page
+   *
+   * @param {bool} persistentMessages to persits the messages on the screen
+   */
+  this.globalPersistentMessages = function (persistentMessages) {
+    _persistentMessages = persistentMessages;
+  };
   /**
    * set whether the messages should be translated (default:true) when the translator is available
    *
@@ -157,7 +166,7 @@ angular.module("angular-growl").provider("growl", function() {
    */
   this.serverMessagesInterceptor = ['$q', 'growl', function ($q, growl) {
     function checkResponse(response) {
-      if (response!=undefined && response.data[_messagesKey] && response.data[_messagesKey].length > 0) {
+      if (response!==undefined && response.data[_messagesKey] && response.data[_messagesKey].length > 0) {
         growl.addServerMessages(response.data[_messagesKey]);
       }
     }
@@ -214,6 +223,7 @@ angular.module("angular-growl").provider("growl", function() {
         position: _config.position || _position,
         referenceId: _config.referenceId || _referenceId,
         translateMessage: _config.translateMessage === undefined ? _translateMessages : _config.translateMessage,
+        persistent: _config.persistent === undefined ? _persistentMessages : _config.persistent,
         destroy: function() {
           growlMessages.deleteMessage(message);
         },
